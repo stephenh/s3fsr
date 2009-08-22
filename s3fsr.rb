@@ -82,7 +82,7 @@ class SDir
   end
   def name
     return '' if @key == ''
-    strip_dollar_folder @key.split('/')[-1]
+    strip_dir_suffix @key.split('/')[-1]
   end
   def size
     0
@@ -112,9 +112,9 @@ class SDir
     end
     def prefix
       return '' if @key == ''
-      strip_dollar_folder(@key) + '/'
+      strip_dir_suffix(@key) + '/'
     end
-    def strip_dollar_folder str
+    def strip_dir_suffix str
       str.end_with?(S3ORGANIZER_DIR_SUFFIX) ? str[0..-10] : str
     end
 end
