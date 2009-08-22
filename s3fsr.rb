@@ -16,7 +16,7 @@ S3SYNC_DIR_ETAG = 'd66759af42f282e1ba19144df2d405d0'
 S3SYNC_DIR_LENGTH = 38
 AWS::S3::Base.establish_connection!(:access_key_id => ENV['AWS_ACCESS_KEY_ID'], :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY'])
 
-class FFile
+class SFile
   def initialize(parent, s3obj)
     @parent = parent
     @s3obj = s3obj
@@ -47,7 +47,7 @@ class FFile
   end
 end
 
-class DDir
+class SDir
   def initialize(parent, key)
     @parent = parent
     @key = key
@@ -64,11 +64,11 @@ class DDir
   end
   def create_file child_key, content
     AWS::S3::S3Object.store(child_key, content, BUCKET)
-    get_contents << FFile.new(self, AWS::S3::S3Object.find(child_key, BUCKET))
+    get_contents << SFile.new(self, AWS::S3::S3Object.find(child_key, BUCKET))
   end
   def create_dir child_key
     AWS::S3::S3Object.store(child_key, S3SYNC_DIR_CONTENTS, BUCKET)
-    get_contents << DDir.new(self, child_key)
+    get_contents << SDir.new(self, child_key)
   end
   def delete
     AWS::S3::S3Object.delete @key, BUCKET
@@ -98,13 +98,13 @@ class DDir
       bucket = AWS::S3::Bucket.find(BUCKET, :prefix => prefix, :delimiter => '/')
       bucket.object_cache.each do |s3obj|
         if (s3obj.content_length == S3SYNC_DIR_LENGTH.to_s and s3obj.etag == S3SYNC_DIR_ETAG) or s3obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
-          @data << DDir.new(self, s3obj.key)
+          @data << SDir.new(self, s3obj.key)
         else
-          @data << FFile.new(self, s3obj)
+          @data << SFile.new(self, s3obj)
         end
       end
       bucket.common_prefix_cache.each do |prefix|
-        hidden = DDir.new(self, prefix[0..-2])
+        hidden = SDir.new(self, prefix[0..-2])
         @data << hidden unless @data.find { |i| i.name == hidden.name }
       end
       puts "done"
@@ -121,7 +121,7 @@ end
 
 class S3fsr
   def initialize
-    @root = DDir.new(nil, '')
+    @root = SDir.new(nil, '')
   end
   def contents(path)
     o = get_object(path)
