@@ -96,14 +96,14 @@ class DDir
       puts "Loading #{name}..."
       @data = []
       bucket = AWS::S3::Bucket.find(BUCKET, :prefix => prefix, :delimiter => '/')
-      bucket.objects.each do |s3obj|
+      bucket.object_cache.each do |s3obj|
         if (s3obj.content_length == S3SYNC_DIR_LENGTH.to_s and s3obj.etag == S3SYNC_DIR_ETAG) or s3obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
           @data << DDir.new(self, s3obj.key)
         else
           @data << FFile.new(self, s3obj)
         end
       end
-      bucket.common_prefixes.each do |prefix|
+      bucket.common_prefix_cache.each do |prefix|
         hidden = DDir.new(self, prefix[0..-2])
         @data << hidden unless @data.find { |i| i.name == hidden.name }
       end
