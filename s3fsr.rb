@@ -93,7 +93,7 @@ class DDir
   private
     def get_contents
       return @data if @data != nil
-      puts "Loading #{name}..."
+      puts "Loading '#{name}'..."
       @data = []
       bucket = AWS::S3::Bucket.find(BUCKET, :prefix => prefix, :delimiter => '/')
       bucket.object_cache.each do |s3obj|
@@ -112,7 +112,7 @@ class DDir
     end
     def prefix
       return '' if @key == ''
-      return strip_dollar_folder(@key) + '/'
+      strip_dollar_folder(@key) + '/'
     end
     def strip_dollar_folder str
       str.end_with?(S3ORGANIZER_DIR_SUFFIX) ? str[0..-10] : str
@@ -173,8 +173,7 @@ class S3fsr
   end
   def can_mkdir?(path)
     return false if get_object(path) != nil
-    return true if get_parent_object(path).is_directory?
-    false
+    get_parent_object(path).is_directory?
   end
   def mkdir(path)
     get_parent_object(path).create_dir(path[1..-1])
@@ -182,8 +181,7 @@ class S3fsr
   def can_rmdir?(path)
     return false if path == '/'
     return false unless get_object(path).is_directory?
-    return true if get_object(path).contents.length == 0
-    false
+    get_object(path).contents.length == 0
   end
   def rmdir(path)
     get_object(path).delete
