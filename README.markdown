@@ -49,5 +49,6 @@ Todo
 * Add switch to pass `allow_other` so that other users can use your mount (e.g. if you want `root` to do the mounting on boot)
 * Nothing is streamed, so if you have files larger than your available RAM, `s3fsr` won't work
 * It would be nice to ship the `aws-s3` fork as its own gem instead of just checking in the source
+* Given the recent speedups, timing out the cache every ~5 minutes or so seems reasonable--probably via a command line parameter
 
 
