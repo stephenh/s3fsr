@@ -97,7 +97,9 @@ class SDir
       @data = []
       bucket = AWS::S3::Bucket.find(BUCKET, :prefix => prefix, :delimiter => '/')
       bucket.object_cache.each do |s3obj|
-        if (s3obj.content_length == S3SYNC_DIR_LENGTH.to_s and s3obj.etag == S3SYNC_DIR_ETAG) or s3obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
+        # Technically we should use S3SYNC_DIR_LENGTH but aws-s3 decides it
+        # needs to issue an HEAD request for every dir for that.
+        if s3obj.etag == S3SYNC_DIR_ETAG or s3obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
           @data << SDir.new(self, s3obj.key)
         else
           @data << SFile.new(self, s3obj)
