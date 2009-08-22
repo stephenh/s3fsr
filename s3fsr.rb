@@ -211,7 +211,8 @@ class MethodLogger
   end
   def method_missing(sym, *args, &block)
     begin
-      puts "#{sym}(#{args})" unless sym == :respond_to?
+      puts "#{sym}(#{args})" unless sym == :respond_to? or sym == :write_to
+      puts "#{sym}(#{args[0].length})" if sym == :write_to
       result = @obj.__send__(sym, *args, &block)
       puts "    #{result}" unless sym == :respond_to? or sym == :read_file
       puts "    #{result.length}" if sym == :read_file
