@@ -3,7 +3,7 @@ require 'fusefs'
 require 'aws/s3'
 
 if ARGV.length != 2 then
-  puts "Usage: bucketName directoryToMount"
+  puts "Usage: bucket_name directory_to_mount"
   exit 1
 end
 
@@ -33,12 +33,12 @@ class FFile
   def value
     @s3obj.value(:reload)
   end
-  def write stuff
-    AWS::S3::S3Object.store @s3obj.key, stuff, @s3obj.bucket.name, @s3obj.about.to_headers
+  def write data
+    AWS::S3::S3Object.store @s3obj.key, data, @s3obj.bucket.name, @s3obj.about.to_headers
   end
   def delete
     AWS::S3::S3Object.delete @s3obj.key, @s3obj.bucket.name
-    @parent.contentDeleted name
+    @parent.content_deleted name
   end
   def size
     @s3obj.content_length
@@ -59,20 +59,20 @@ class DDir
   def is_file?
     false
   end
-  def contentDeleted name
+  def content_deleted name
     get_contents.delete_if { |i| i.name == name }
   end
-  def createFile childKey, content
-    AWS::S3::S3Object.store(childKey, content, BUCKET)
-    get_contents << FFile.new(self, AWS::S3::S3Object.find(childKey, BUCKET))
+  def create_file child_key, content
+    AWS::S3::S3Object.store(child_key, content, BUCKET)
+    get_contents << FFile.new(self, AWS::S3::S3Object.find(child_key, BUCKET))
   end
-  def createDir childKey
-    AWS::S3::S3Object.store(childKey, S3SYNC_DIR_CONTENTS, BUCKET)
-    get_contents << DDir.new(self, childKey)
+  def create_dir child_key
+    AWS::S3::S3Object.store(child_key, S3SYNC_DIR_CONTENTS, BUCKET)
+    get_contents << DDir.new(self, child_key)
   end
   def delete
     AWS::S3::S3Object.delete @key, BUCKET
-    @parent.contentDeleted name
+    @parent.content_deleted name
   end
   def contents
     get_contents.collect { |i| i.name }
@@ -124,79 +124,79 @@ class S3fsr
     @root = DDir.new(nil, '')
   end
   def contents(path)
-    o = getObject(path)
+    o = get_object(path)
     o == nil ? "" : o.contents
   end
   def directory?(path)
-    o = getObject(path)
+    o = get_object(path)
     o == nil ? false : o.is_directory?
   end
   def file?(path)
-    o = getObject(path)
+    o = get_object(path)
     o == nil ? false : o.is_file?
   end
   def executable?(path)
     false
   end
   def size(path)
-    getObject(path).size
+    get_object(path).size
   end
   def read_file(path)
-    getObject(path).value
+    get_object(path).value
   end
   def can_write?(path)
-    o = getObject(path)
+    o = get_object(path)
     if o != nil
       o.is_file?
     else
-      d = getParentObject(path)
+      d = get_parent_object(path)
       d == nil ? false : d.is_directory?
     end
   end
   def write_to(path, data)
-    o = getObject(path)
+    o = get_object(path)
     if o != nil
       o.write data
     else
-      d = getParentObject(path)
+      d = get_parent_object(path)
       if d != nil
-        d.createFile(path[1..-1], data)
+        d.create_file(path[1..-1], data)
       end
     end
   end
   def can_delete?(path)
-    o = getObject(path)
+    o = get_object(path)
     o == nil ? false : o.is_file?
   end
   def delete(path)
-    getObject(path).delete
+    get_object(path).delete
   end
   def can_mkdir?(path)
-    return false if getObject(path) != nil
-    return true if getParentObject(path).is_directory?
+    return false if get_object(path) != nil
+    return true if get_parent_object(path).is_directory?
     false
   end
   def mkdir(path)
-    getParentObject(path).createDir(path[1..-1])
+    get_parent_object(path).create_dir(path[1..-1])
   end
   def can_rmdir?(path)
     return false if path == '/'
-    return false unless getObject(path).is_directory?
-    return true if getObject(path).contents.length == 0
+    return false unless get_object(path).is_directory?
+    return true if get_object(path).contents.length == 0
     false
   end
   def rmdir(path)
-    getObject(path).delete
+    get_object(path).delete
   end
   def touch(path)
-    getObject(path).touch
+    get_object(path).touch
   end
   private
-    def getParentObject(path)
+    def get_parent_object(path)
       # path[1..-1] because '/'.split('/') -> ['']
-      getObject('/' + (path[1..-1].split('/')[0..-2].join('/')))
+      get_object('/' + (path[1..-1].split('/')[0..-2].join('/')))
     end
-    def getObject(path)
+    def get_object(path)
       curr = @root
       # path[1..-1] because '/'.split('/') -> ['']
       path[1..-1].split('/').each do |part|
