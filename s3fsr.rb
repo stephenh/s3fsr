@@ -213,7 +213,8 @@ class MethodLogger
     begin
       puts "#{sym}(#{args})" unless sym == :respond_to?
       result = @obj.__send__(sym, *args, &block)
-      puts "    #{result}" unless sym == :respond_to?
+      puts "    #{result}" unless sym == :respond_to? or sym == :read_file
+      puts "    #{result.length}" if sym == :read_file
       result
     rescue => e
       puts "    #{e.inspect}"
