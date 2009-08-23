@@ -4,7 +4,9 @@ Intro
 
 `s3fsr` is yet another file system interface to S3.
 
-However, this one groks the pseudo-directory notation of both the popular `s3sync` library and `S3 Organizer` Firefox plugin. So no `_$folder$` suffixes, no double entries of folders/files, everything should just work.
+However, `s3fsr` groks the pseudo-directory notation of both the popular `s3sync` library and `S3 Organizer` Firefox plugin. So no `_$folder$` suffixes, no double entries of folders/files, everything should just work.
+
+When creating directories (with `mkdir`), the `s3sync` directory convention is used.
 
 Usage
 =====
