@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 
 require 'fusefs'
 require 'aws/s3'
