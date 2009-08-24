@@ -3,13 +3,14 @@
 require 'fusefs'
 require 'aws/s3'
 
-if ARGV.length != 2 then
-  puts "Usage: bucket_name directory_to_mount"
+if ARGV.length == 1 then
+  BUCKET = nil ; MOUNT = ARGV[0]
+elsif ARGV.length != 2 then
+  BUCKET = ARGV[0] ; MOUNT = ARGV[1]
+else
+  puts "Usage: [bucket_name] directory_to_mount"
   exit 1
 end
-
-BUCKET = ARGV[0]
-MOUNT = ARGV[1]
 
 S3ORGANIZER_DIR_SUFFIX = '_$folder$'
 S3SYNC_DIR_CONTENTS = '{E40327BF-517A-46e8-A6C3-AF51BC263F59}'
@@ -49,9 +50,10 @@ class SFile
 end
 
 class SDir
-  def initialize(parent, key)
+  def initialize(parent, key, bucket=nil)
     @parent = parent
     @key = key
+    @bucket = bucket # only if root dir
     @data = nil
   end
   def is_directory?
@@ -60,19 +62,25 @@ class SDir
   def is_file?
     false
   end
+  def is_root?
+    key == ''
+  end
+  def is_bucket_dir?
+    false
+  end
   def content_deleted name
     get_contents.delete_if { |i| i.name == name }
   end
   def create_file child_key, content
-    AWS::S3::S3Object.store(child_key, content, BUCKET)
-    get_contents << SFile.new(self, AWS::S3::S3Object.find(child_key, BUCKET))
+    AWS::S3::S3Object.store(child_key, content, bucket)
+    get_contents << SFile.new(self, AWS::S3::S3Object.find(child_key, bucket))
   end
   def create_dir child_key
-    AWS::S3::S3Object.store(child_key, S3SYNC_DIR_CONTENTS, BUCKET)
+    AWS::S3::S3Object.store(child_key, S3SYNC_DIR_CONTENTS, bucket)
     get_contents << SDir.new(self, child_key)
   end
   def delete
-    AWS::S3::S3Object.delete @key, BUCKET
+    AWS::S3::S3Object.delete @key, bucket
     @parent.content_deleted name
   end
   def contents
@@ -82,7 +90,7 @@ class SDir
     get_contents.find { |i| i.name == name }
   end
   def name
-    return '' if @key == ''
+    return bucket if @key == ''
     strip_dir_suffix @key.split('/')[-1]
   end
   def size
@@ -91,13 +99,16 @@ class SDir
   def touch
     @data = nil
   end
+  def bucket
+    @bucket || @parent.bucket
+  end
   private
     def get_contents
       return @data if @data != nil
-      puts "Loading '#{name}'..."
+      puts "Loading '#{name}' from #{bucket}..."
       @data = []
-      bucket = AWS::S3::Bucket.find(BUCKET, :prefix => prefix, :delimiter => '/')
-      bucket.object_cache.each do |s3obj|
+      s3bucket = AWS::S3::Bucket.find(bucket, :prefix => prefix, :delimiter => '/')
+      s3bucket.object_cache.each do |s3obj|
         # Technically we should use S3SYNC_DIR_LENGTH but aws-s3 decides it
         # needs to issue an HEAD request for every dir for that.
         if s3obj.etag == S3SYNC_DIR_ETAG or s3obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
@@ -106,7 +117,7 @@ class SDir
           @data << SFile.new(self, s3obj)
         end
       end
-      bucket.common_prefix_cache.each do |prefix|
+      s3bucket.common_prefix_cache.each do |prefix|
         hidden = SDir.new(self, prefix[0..-2])
         @data << hidden unless @data.find { |i| i.name == hidden.name }
       end
@@ -122,9 +133,65 @@ class SDir
     end
 end
 
-class S3fsr
+class SBucketsDir
   def initialize
-    @root = SDir.new(nil, '')
+    @data = nil
+  end
+  def is_directory?
+    true
+  end
+  def is_file?
+    false
+  end
+  def is_root?
+    false
+  end
+  def is_bucket_dir?
+    true
+  end
+  def content_deleted name
+    raise 'bucket deletion not implemented'
+  end
+  def create_file child_key, content
+    raise 'cannot do'
+  end
+  def create_dir child_key
+    raise 'bucket creation not implemented'
+  end
+  def delete
+    raise 'cannot delete the buckets dir'
+  end
+  def contents
+    get_contents.collect { |i| i.name }
+  end
+  def get(name)
+    get_contents.find { |i| i.name == name }
+  end
+  def name
+    return 'buckets'
+  end
+  def size
+    0
+  end
+  def touch
+    @data = nil
+  end
+  private
+    def get_contents
+      return @data if @data != nil
+      puts "Loading buckets..."
+      @data = []
+      AWS::S3::Bucket.list(true).each do |s3bucket|
+        @data << SDir.new(nil, '', s3bucket.name)
+      end
+      puts "done"
+      @data
+    end
+end
+
+class S3fsr
+  def initialize(root)
+    @root = root
   end
   def contents(path)
     o = get_object(path)
@@ -228,7 +295,8 @@ class MethodLogger
   end
 end
 
-s3fsr = MethodLogger.new(S3fsr.new)
+root = BUCKET != nil ? SDir.new(nil, '', BUCKET) : SBucketsDir.new
+s3fsr = MethodLogger.new(S3fsr.new(root))
 FuseFS.set_root s3fsr
 FuseFS.mount_under MOUNT #, "allow_other"
 FuseFS.run
