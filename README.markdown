@@ -54,4 +54,5 @@ Todo
 * Given the recent speedups, timing out the cache every ~5 minutes or so seems reasonable--probably via a command line parameter
 * Package `s3fsr` as a gem/something so it can be easily installed/put on the user's path/etc.
 * Add an option to mount all of your buckets, e.g. `/dir/bucketA`, `/dir/bucketB`
+* File size isn't working for some reason
 
