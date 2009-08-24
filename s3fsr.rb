@@ -5,7 +5,7 @@ require 'aws/s3'
 
 if ARGV.length == 1 then
   BUCKET = nil ; MOUNT = ARGV[0]
-elsif ARGV.length != 2 then
+elsif ARGV.length == 2 then
   BUCKET = ARGV[0] ; MOUNT = ARGV[1]
 else
   puts "Usage: [bucket_name] directory_to_mount"
@@ -102,6 +102,9 @@ class SDir
   def bucket
     @bucket || @parent.bucket
   end
+  def strip_bucket_name_if_necessary child_key
+    child_key
+  end
   private
     def get_contents
       return @data if @data != nil
@@ -176,6 +179,10 @@ class SBucketsDir
   def touch
     @data = nil
   end
+  def strip_bucket_name_if_necessary child_key
+    i = child_key.index('/')
+    child_key[i+1..-1]
+  end
   private
     def get_contents
       return @data if @data != nil
@@ -230,7 +237,8 @@ class S3fsr
     else
       d = get_parent_object(path)
       if d != nil
-        d.create_file(path[1..-1], data)
+        child_key = @root.strip_bucket_name_if_necessary path[1..-1]
+        d.create_file(child_key, data)
       end
     end
   end
@@ -246,7 +254,8 @@ class S3fsr
     get_parent_object(path).is_directory?
   end
   def mkdir(path)
-    get_parent_object(path).create_dir(path[1..-1])
+    child_key = @root.strip_bucket_name_if_necessary path[1..-1]
+    get_parent_object(path).create_dir(child_key)
   end
   def can_rmdir?(path)
     return false if path == '/'
