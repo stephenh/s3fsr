@@ -11,15 +11,31 @@ When creating directories (with `mkdir`), the `s3sync` directory convention is u
 Usage
 =====
 
-`ruby s3fsr.rb <bucket-name> <mount-point>`
+`ruby s3fsr.rb [<bucket-name>] <mount-point>`
 
 For example, to mount the bucket `mybucket` to the directory `~/s3`:
 
-1. First make the directory you want to mount against, e.g. `mkdir ~/s3`
-2. Run `ruby s3fsr.rb mybucket ~/s3`
-3. Watch the output if you want (or use `&` to send it to the background)
-4. Use `Ctrl-C` to kill
-5. Run `fusermount -u ~/s3` to unmount the directory
+1. `mkdir ~/s3`
+2. `ruby s3fsr.rb mybucket ~/s3`
+3. `ls ~/s3` -- see all the directories/files inside of `mybucket`
+
+To mount all of your buckets to the directory `~/s3`:
+
+1. `mkdir ~/s3`
+2. `ruby s3fsr.rb ~/s3`
+3. `ls ~/s3` -- see all of the buckets for your Amazon account
+
+When you're done:
+
+1. Use `Ctrl-C` to kill the ruby process
+2. Run `fusermount -u ~/s3` to unmount the directory
+
+Note that `s3fsr` uses the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, so you need to set them with your Amazon key information.
+
+Tips
+====
+
+* To avoid indexing daemons from scanning your S3 mount, you might try `chmod og-rx ~/s3` (I think that worked for me...feedback appreciated)
 
 Caching
 =======
