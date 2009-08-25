@@ -11,6 +11,11 @@ else
   puts "Usage: [bucket_name] directory_to_mount"
   exit 1
 end
+if ENV['AWS_ACCESS_KEY_ID'] == nil or ENV['AWS_SECRET_ACCESS_KEY'] == nil
+  puts "Both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables must be set"
+  exit 1
+end
+
 
 S3ORGANIZER_DIR_SUFFIX = '_$folder$'
 S3SYNC_DIR_CONTENTS = '{E40327BF-517A-46e8-A6C3-AF51BC263F59}'
