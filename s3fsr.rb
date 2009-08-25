@@ -169,7 +169,7 @@ class SBucketsDir < SBaseDir
     false
   end
   def create_file child_key, content
-    raise 'cannot create news outside of a bucket'
+    raise 'cannot create files outside of a bucket'
   end
   def create_dir child_key
     AWS::S3::Bucket.create(child_key)
