@@ -11,18 +11,18 @@ When creating directories (with `mkdir`), the `s3sync` directory convention is u
 Usage
 =====
 
-`ruby s3fsr.rb [<bucket-name>] <mount-point>`
+`s3fsr [<bucket-name>] <mount-point>`
 
 For example, to mount the bucket `mybucket` to the directory `~/s3`:
 
 1. `mkdir ~/s3`
-2. `ruby s3fsr.rb mybucket ~/s3`
+2. `s3fsr mybucket ~/s3`
 3. `ls ~/s3` -- see all the directories/files inside of `mybucket`
 
 To mount all of your buckets to the directory `~/s3`:
 
 1. `mkdir ~/s3`
-2. `ruby s3fsr.rb ~/s3`
+2. `s3fsr ~/s3`
 3. `ls ~/s3` -- see all of the buckets for your Amazon account
 
 When you're done:
