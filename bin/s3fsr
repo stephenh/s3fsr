@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+# s3_lib = File.dirname(__FILE__) + '/../lib/aws/s3'
+# setup = File.dirname(__FILE__) + '/setup'
+# irb_name = RUBY_PLATFORM =~ /mswin32/ ? 'irb.bat' : 'irb'
+# exec "#{irb_name} -r #{s3_lib} -r #{setup} --simple-prompt"
+# require File.dirname(__FILE__) + '/lib/aws/s3'
+
+require File.dirname(__FILE__) + '/../lib/s3fsr'
+
+if ARGV.length == 1 then
+  BUCKET = nil ; MOUNT = ARGV[0]
+elsif ARGV.length == 2 then
+  BUCKET = ARGV[0] ; MOUNT = ARGV[1]
+else
+  puts "Usage: [bucket_name] directory_to_mount"
+  exit 1
+end
+if ENV['AWS_ACCESS_KEY_ID'] == nil or ENV['AWS_SECRET_ACCESS_KEY'] == nil
+  puts "Both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables must be set"
+  exit 1
+end
+
+root = BUCKET != nil ? SBucketDir.new(nil, BUCKET) : SBucketsDir.new
+s3fsr = MethodLogger.new(S3fsr.new(root))
+FuseFS.set_root s3fsr
+FuseFS.mount_under MOUNT #, "allow_other"
+FuseFS.run
