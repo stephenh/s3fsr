@@ -35,8 +35,8 @@ Note that `s3fsr` uses the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` envir
 Install
 =======
 
-* Install [FUSE](http://fuse.sourceforge.net/) for your OS
-* Install Ruby and [`fusefs`](http://rubyforge.org/projects/fusefs/)
+* Install Ruby for your OS
+* Install [FUSE](http://fuse.sourceforge.net/) and [`fusefs`](http://rubyforge.org/projects/fusefs/) for your OS
   * `fusefs` probably isn't a gem, e.g. on Ubuntu it is the `libfusefs-ruby` package
 * `gem install stephenh-s3fsr` (using the GitHub gem server, e.g. `gem sources -a http://gems.github.com`)
 
