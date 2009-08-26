@@ -32,6 +32,14 @@ When you're done:
 
 Note that `s3fsr` uses the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, so you need to set them with your Amazon key information.
 
+Install
+=======
+
+* Install [FUSE](http://fuse.sourceforge.net/) for your OS
+* Install Ruby and [`fusefs`](http://rubyforge.org/projects/fusefs/)
+  * `fusefs` probably isn't a gem, e.g. on Ubuntu it is the `libfusefs-ruby` package
+* `gem install stephenh-s3fsr` (using the GitHub gem server, e.g. `gem sources -a http://gems.github.com`)
+
 Tips
 ====
 
@@ -46,28 +54,12 @@ Caching
 
 This gives very good CLI performance, e.g. for quick `ls`/`cd` commands, while ensuring the data itself is always fresh.
 
-Dependencies
-============
-
-* [`fusefs`](http://rubyforge.org/projects/fusefs/) (e.g. the `libfusefs-ruby` package in Ubuntu)
-* [`aws-s3`](http://amazon.rubyforge.org/)
-  * `s3fsr` ships with a patched version `aws-s3` from [Matt Jamieson's repo](http://github.com/mattjamieson/aws-s3) that parses out out the `CommonPrefixes` responses for even better grokking of directories
-
-Install
-=======
-
-* Install [FUSE](http://fuse.sourceforge.net/) for your OS
-* Install Ruby and [`fusefs`](http://rubyforge.org/projects/fusefs/)
-* Clone the `s3fsr` source--I should make a release...
-
 Todo
 ====
 
 * Unmounting doesn't kill the process, annoying if you want to run it in the background
 * Add switch to pass `allow_other` so that other users can use your mount (e.g. if you want `root` to do the mounting on boot)
 * Nothing is streamed, so if you have files larger than your available RAM, `s3fsr` won't work
-* It would be nice to ship the `aws-s3` fork as its own gem instead of just checking in the source
 * Given the recent speedups, timing out the cache every ~5 minutes or so seems reasonable--probably via a command line parameter
-* Package `s3fsr` as a gem/something so it can be easily installed/put on the user's path/etc.
 * File size isn't working for some reason
 
