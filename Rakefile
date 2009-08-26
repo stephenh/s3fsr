@@ -3,7 +3,7 @@ require 'rake'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
 
-namespace :dist do  
+namespace :dist do
   spec = Gem::Specification.new do |s|
     s.name              = 's3fsr'
     s.version           = '1.0'
@@ -15,7 +15,13 @@ namespace :dist do
     s.homepage          = 'http://github.com/stephenh/s3fsr'
     s.files             = FileList['Rakefile', 'lib/**/*.rb', 'bin/*']
     s.executables       << 's3fsr'
-    s.add_dependency 'fuse'
+  end
+
+  task :package
+  Rake::GemPackageTask.new(spec) do |pkg|
+    pkg.need_tar_gz = true
+    pkg.package_files.include('{lib,bin}/**/*')
+    pkg.package_files.include('Rakefile')
   end
 end
 
