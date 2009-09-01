@@ -92,7 +92,7 @@ class SBaseDir
           @data << SFile.new(self, s3_obj)
         end
       end
-      s3_bucket.common_prefix_cache.each do |prefix|
+      s3_bucket.common_prefix_cache.reject { |p| p == '/' }.each do |prefix|
         hidden = SFakeDir.new(self, prefix[0..-2])
         @data << hidden unless @data.find { |i| i.name == hidden.name }
       end
