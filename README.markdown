@@ -48,7 +48,7 @@ Tips
 Caching
 =======
 
-* File content is never cached
+* File content is never cached (though file size is)
 * Directory listings are always cached
 * Directory listings can be explicitly reset using `touch`, e.g. `touch ~/s3/subdir` 
 

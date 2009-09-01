@@ -565,6 +565,13 @@ module AWS
           reload ? about(reload)['etag'][1...-1] : attributes['e_tag'][1...-1]
         end
       end
+
+      def content_length(reload = false)
+        return nil unless stored?
+        memoize(reload) do
+          reload ? about(reload)['content_length'] : attributes['size']
+        end
+      end
       
       # Returns the owner of the current object.
       def owner 
