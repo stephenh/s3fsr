@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.version           = '1.2'
   s.summary           = "FUSE File System for Amazon S3"
   s.description       = s.summary
-  s.email             = 'stephen@exigencecorp.com.com'
+  s.email             = 'stephen@exigencecorp.com'
   s.author            = 'Stephen Haberman'
   s.has_rdoc          = false
   s.homepage          = 'http://github.com/stephenh/s3fsr'
