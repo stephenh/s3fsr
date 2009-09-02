@@ -54,6 +54,13 @@ Caching
 
 This gives very good CLI performance, e.g. for quick `ls`/`cd` commands, while ensuring the data itself is always fresh.
 
+Changelog
+=========
+
+* 1.0 - Initial release
+* 1.1 - Fix file size to not make extra per-file HEAD requests
+* 1.2 - Fix directories with >1000 files
+
 Todo
 ====
 
