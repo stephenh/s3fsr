@@ -28,7 +28,6 @@ To mount all of your buckets to the directory `~/s3`:
 When you're done:
 
 1. Use `Ctrl-C` to kill the ruby process
-2. Run `fusermount -u ~/s3` to unmount the directory
 
 Note that `s3fsr` uses the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, so you need to set them with your Amazon key information.
 
@@ -60,11 +59,11 @@ Changelog
 * 1.0 - Initial release
 * 1.1 - Fix file size to not make extra per-file HEAD requests
 * 1.2 - Fix directories with >1000 files
+* 1.3 - Killing `s3fsr` now also unmounts the directory
 
 Todo
 ====
 
-* Unmounting doesn't kill the process, annoying if you want to run it in the background
 * Add switch to pass `allow_other` so that other users can use your mount (e.g. if you want `root` to do the mounting on boot)
 * Nothing is streamed, so if you have files larger than your available RAM, `s3fsr` won't work
 * Given the recent speedups, timing out the cache every ~5 minutes or so seems reasonable--probably via a command line parameter
