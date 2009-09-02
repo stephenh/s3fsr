@@ -19,4 +19,8 @@ root = BUCKET != nil ? SBucketDir.new(nil, BUCKET) : SBucketsDir.new
 s3fsr = MethodLogger.new(S3fsr.new(root))
 FuseFS.set_root s3fsr
 FuseFS.mount_under MOUNT #, "allow_other"
-FuseFS.run
+begin
+  FuseFS.run
+rescue Interrupt
+  FuseFS.unmount
+end
