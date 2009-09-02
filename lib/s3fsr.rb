@@ -82,19 +82,24 @@ class SBaseDir
       return @data if @data != nil
       puts "Loading '#{name}' from #{bucket}..."
       @data = []
-      s3_bucket = AWS::S3::Bucket.find(bucket, :prefix => prefix, :delimiter => '/')
-      s3_bucket.object_cache.each do |s3_obj|
-        # Technically we should use S3SYNC_DIR_LENGTH but aws-s3 decides it
-        # needs to issue an HEAD request for every dir for that.
-        if s3_obj.etag == S3SYNC_DIR_ETAG or s3_obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
-          @data << SFakeDir.new(self, s3_obj.key)
-        else
-          @data << SFile.new(self, s3_obj)
+      marker = ''
+      loop do
+        s3_bucket = AWS::S3::Bucket.find(bucket, :prefix => prefix, :delimiter => '/', :marker => marker, :max_keys => 1000)
+        s3_bucket.object_cache.each do |s3_obj|
+          # Technically we should use S3SYNC_DIR_LENGTH but aws-s3 decides it
+          # needs to issue an HEAD request for every dir for that.
+          if s3_obj.etag == S3SYNC_DIR_ETAG or s3_obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
+            @data << SFakeDir.new(self, s3_obj.key)
+          else
+            @data << SFile.new(self, s3_obj)
+          end
         end
-      end
-      s3_bucket.common_prefix_cache.reject { |p| p == '/' }.each do |prefix|
-        hidden = SFakeDir.new(self, prefix[0..-2])
-        @data << hidden unless @data.find { |i| i.name == hidden.name }
+        s3_bucket.common_prefix_cache.reject { |p| p == '/' }.each do |prefix|
+          hidden = SFakeDir.new(self, prefix[0..-2])
+          @data << hidden unless @data.find { |i| i.name == hidden.name }
+        end
+        break unless s3_bucket.object_cache.length % 1000 == 0
+        marker = s3_bucket.object_cache.last.key
       end
       puts "done"
       @data
