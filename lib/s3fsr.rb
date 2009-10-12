@@ -98,7 +98,7 @@ class SBaseDir
           hidden = SFakeDir.new(self, prefix[0..-2])
           @data << hidden unless @data.find { |i| i.name == hidden.name }
         end
-        break unless s3_bucket.object_cache.length % 1000 == 0
+        break unless s3_bucket.object_cache.length > 0 && s3_bucket.object_cache.length % 1000 == 0
         marker = s3_bucket.object_cache.last.key
       end
       puts "done"

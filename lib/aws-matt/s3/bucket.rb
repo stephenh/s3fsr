@@ -306,9 +306,10 @@ module AWS
       
       private        
         def build_contents!
-          return unless has_contents?
-          attributes.delete('contents').each do |content|
-            add new_object(content)
+          if has_contents? then
+            attributes.delete('contents').each do |content|
+              add new_object(content)
+            end
           end
           
           if attributes['common_prefixes']
