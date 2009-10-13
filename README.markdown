@@ -4,11 +4,15 @@ Intro
 
 `s3fsr` is yet another file system interface to S3.
 
-Most usefully, `s3fsr` groks three popular styles of S3 directory notation:
+This means you can mount your S3 buckets as directories (like `~/s3`) and then use `ls/cp/mv` to copy/move directories and files between your S3 buckets and your other file systems.
 
-* `s3sync` library's `etag` marker directories
-* `S3 Organizer` plugin's `_$folder$` suffixed marker directories
-* "common prefix" directories (no markers, just inferred from having children objects with `/` delimiters)
+Most usefully, `s3fsr` understands three popular styles of S3 directory notation:
+
+* `s3sync` library's `etag` marker objects
+* `S3 Organizer` plugin's `_$folder$` suffixed marker objects
+* Plain "common prefix" directories (no marker objects, just inferred by Amazon's S3 API by having children objects, based on `/` as a delimiter)
+
+This means you should be able to browse most any S3 bucket hierarchically without seeing odd names, duplicates entries, or missing directories.
 
 When explicitly creating directories (e.g. with `mkdir`), the `s3sync` `etag` marker directory convention is used.
 
