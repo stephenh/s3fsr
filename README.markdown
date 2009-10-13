@@ -4,9 +4,13 @@ Intro
 
 `s3fsr` is yet another file system interface to S3.
 
-However, `s3fsr` groks the pseudo-directory notation of both the popular `s3sync` library and `S3 Organizer` Firefox plugin. So no `_$folder$` suffixes, no double entries of folders/files, everything should just work.
+Most usefully, `s3fsr` groks three popular styles of S3 directory notation:
 
-When creating directories (with `mkdir`), the `s3sync` directory convention is used.
+* `s3sync` library's `etag` marker directories
+* `S3 Organizer` plugin's `_$folder$` suffixed marker directories
+* "common prefix" directories (no markers, just inferred from having children objects with `/` delimiters)
+
+When explicitly creating directories (e.g. with `mkdir`), the `s3sync` `etag` marker directory convention is used.
 
 Usage
 =====
@@ -27,22 +31,25 @@ To mount all of your buckets to the directory `~/s3`:
 
 When you're done:
 
-1. Use `Ctrl-C` to kill the ruby process
+1. Use `Ctrl-C` to kill the ruby process, this will also unmount the directory
 
-Note that `s3fsr` uses the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, so you need to set them with your Amazon key information.
+`s3fsr` uses the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, so you need to set them with your Amazon key information.
 
 Install
 =======
 
 * Install Ruby for your OS
 * Install [FUSE](http://fuse.sourceforge.net/) and [`fusefs`](http://rubyforge.org/projects/fusefs/) for your OS
-  * `fusefs` probably isn't a gem, e.g. on Ubuntu it is the `libfusefs-ruby` package
-* `gem install stephenh-s3fsr` (using the GitHub gem server, e.g. `gem sources -a http://gems.github.com`)
+  * FUSE is very OS-specific, so the Ruby `fusefs` library is not a gem
+  * E.g. on Ubuntu, installing the `libfusefs-ruby` package will install `FUSE` and the Ruby `fusefs` library
+* `gem sources -a http://gemcutter.org` to add the [Gemcutter](http://gemcutter.org) gem host
+* `gem install s3fsr`
 
 Tips
 ====
 
-* To avoid indexing daemons from scanning your S3 mount, you might try `chmod og-rx ~/s3` (I think that worked for me...feedback appreciated)
+* To avoid indexing daemons from scanning your S3 mount, you might try `chmod og-rx ~/s3`
+  * I'm pretty sure this worked for me...feedback appreciated
 
 Caching
 =======
@@ -60,6 +67,7 @@ Changelog
 * 1.1 - Fix file size to not make extra per-file HEAD requests
 * 1.2 - Fix directories with >1000 files
 * 1.3 - Killing `s3fsr` now also unmounts the directory
+* 1.4 - Fix directories that are only from common prefixes, move to [Gemcutter](http://gemcutter.org)
 
 Todo
 ====
