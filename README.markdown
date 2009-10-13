@@ -72,6 +72,7 @@ Changelog
 * 1.2 - Fix directories with >1000 files
 * 1.3 - Killing `s3fsr` now also unmounts the directory
 * 1.4 - Fix directories that are only from common prefixes, move to [Gemcutter](http://gemcutter.org)
+* 1.5 - Fix touching a file that does not yet exist
 
 Todo
 ====

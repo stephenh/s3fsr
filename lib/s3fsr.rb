@@ -256,7 +256,12 @@ class S3fsr
     get_object(path).delete
   end
   def touch(path)
-    get_object(path).touch
+    o = get_object(path)
+    if o != nil
+      o.touch
+    else
+      write_to(path, "")
+    end
   end
   private
     def get_parent_object(path)
