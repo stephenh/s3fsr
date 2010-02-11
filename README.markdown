@@ -46,6 +46,7 @@ Install
 * Install [FUSE](http://fuse.sourceforge.net/) and [`fusefs`](http://rubyforge.org/projects/fusefs/) for your OS
   * FUSE is very OS-specific, so the Ruby `fusefs` library is not a gem
   * E.g. on Ubuntu, installing the `libfusefs-ruby` package will install `FUSE` and the Ruby `fusefs` library
+* Install `libopenssl-ruby`, `builder` gem, `mime-types` gem, and `xml-simple` gem (Yes, I need to update the gem spec to include these)
 * `gem sources -a http://gemcutter.org` to add the [Gemcutter](http://gemcutter.org) gem host
 * `gem install s3fsr`
 
