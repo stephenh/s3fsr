@@ -99,7 +99,7 @@ class SBaseDir
           end
         end
         s3_bucket.common_prefix_cache.reject { |p| p == '/' }.each do |prefix|
-          hidden = SFakeDir.new(self, prefix[0..-2])
+          hidden = SPrefixDir.new(self, prefix)
           @data << hidden unless @data.find { |i| i.name == hidden.name }
         end
         break unless s3_bucket.object_cache.length > 0 && s3_bucket.object_cache.length % 1000 == 0
@@ -110,6 +110,26 @@ class SBaseDir
     end
 end
 
+# for either non-existent or aws console-created fake directories that end with /
+class SPrefixDir < SBaseDir
+  def initialize(parent, key)
+    @parent = parent
+    @key = key
+    @data = nil
+  end
+  def name
+    @key.split('/')[-1]
+  end
+  def bucket
+    @parent.bucket
+  end
+  private
+    def prefix
+      @key
+    end
+end
+
+# for s3sync/s3organizer fake directories
 class SFakeDir < SBaseDir
   def initialize(parent, key)
     @parent = parent
