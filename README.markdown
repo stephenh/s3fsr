@@ -15,7 +15,7 @@ Most usefully, `s3fsr` understands four popular styles of S3 directory notation:
 
 This means you should be able to browse most any S3 bucket hierarchically without seeing odd names, duplicates entries, or missing directories.
 
-When explicitly creating directories (e.g. with `mkdir`), the `s3sync` `etag` marker directory convention is used.
+When explicitly creating directories (e.g. with `mkdir`), the AWS Console `folder/` marker directory convention is used.
 
 Usage
 =====
