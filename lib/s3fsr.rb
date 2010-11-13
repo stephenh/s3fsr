@@ -58,8 +58,8 @@ class SBaseDir
     get_contents << SFile.new(self, AWS::S3::S3Object.find(child_key, bucket))
   end
   def create_dir child_key
-    AWS::S3::S3Object.store(child_key, S3SYNC_DIR_CONTENTS, bucket)
-    get_contents << SFakeDir.new(self, child_key)
+    AWS::S3::S3Object.store(child_key + '/', '', bucket)
+    get_contents << SPrefixDir.new(self, child_key + '/')
   end
   def delete
     AWS::S3::S3Object.delete @key, bucket
