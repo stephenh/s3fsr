@@ -6,10 +6,11 @@ Intro
 
 This means you can mount your S3 buckets as directories (like `~/s3`) and then use `ls/cp/mv` to copy/move directories and files between your S3 buckets and your other file systems.
 
-Most usefully, `s3fsr` understands three popular styles of S3 directory notation:
+Most usefully, `s3fsr` understands four popular styles of S3 directory notation:
 
 * `s3sync` library's `etag` marker objects
 * `S3 Organizer` plugin's `_$folder$` suffixed marker objects
+* AWS Console's `folder/` marker objects
 * Plain "common prefix" directories (no marker objects, just inferred by Amazon's S3 API by having children objects, based on `/` as a delimiter)
 
 This means you should be able to browse most any S3 bucket hierarchically without seeing odd names, duplicates entries, or missing directories.
