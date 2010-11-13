@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |s|
   s.name              = 's3fsr'
-  s.version           = '1.6'
+  s.version           = '1.7'
   s.summary           = "FUSE File System for Amazon S3"
   s.description       = s.summary
   s.email             = 'stephen@exigencecorp.com'

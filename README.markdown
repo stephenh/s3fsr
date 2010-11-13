@@ -75,6 +75,7 @@ Changelog
 * 1.4 - Fix directories that are only from common prefixes, move to [Gemcutter](http://gemcutter.org)
 * 1.5 - Fix touching a file that does not yet exist, add dependent gems
 * 1.6 - Fix for directory marker files ending with /, e.g. `dir/`
+* 1.7 - Fix deletion of AWS Console-style directory marker files, create new directories with AWS Console-style
 
 Todo
 ====
