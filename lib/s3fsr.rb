@@ -90,6 +90,10 @@ class SBaseDir
           # needs to issue an HEAD request for every dir for that.
           if s3_obj.etag == S3SYNC_DIR_ETAG or s3_obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
             @data << SFakeDir.new(self, s3_obj.key)
+          elsif s3_obj.key.end_with? '/'
+            # We passed 'prefix/', delimiter='/', if we get any keys that
+            # end with /, it's just a marker object for our current directory
+            # so ignore it.
           else
             @data << SFile.new(self, s3_obj)
           end
