@@ -63,25 +63,27 @@ class SBaseDir
     true
   end
   def content_deleted name
-    get_contents.delete_if { |i| i.name == name }
+    get_contents.delete name
   end
   def create_file child_key, content
     AWS::S3::S3Object.store(child_key, content, bucket)
-    get_contents << SFile.new(self, AWS::S3::S3Object.find(child_key, bucket))
+    f = SFile.new(self, AWS::S3::S3Object.find(child_key, bucket))
+    get_contents[f.name] = f
   end
   def create_dir child_key
     AWS::S3::S3Object.store(child_key + '/', '', bucket)
-    get_contents << SPrefixDir.new(self, child_key + '/')
+    d = SPrefixDir.new(self, child_key + '/')
+    get_contents[d.name] = d
   end
   def delete
     AWS::S3::S3Object.delete @key, bucket
     @parent.content_deleted name
   end
   def contents
-    get_contents.collect { |i| i.name }
+    get_contents.keys
   end
   def get(name)
-    get_contents.find { |i| i.name == name }
+    get_contents[name]
   end
   def size
     0
@@ -93,7 +95,7 @@ class SBaseDir
     def get_contents
       return @data if @data != nil
       puts "Loading '#{name}' from #{bucket}..."
-      @data = []
+      @data = {}
       marker = ''
       loop do
         s3_bucket = AWS::S3::Bucket.find(bucket, :prefix => prefix, :delimiter => '/', :marker => marker, :max_keys => 1000)
@@ -101,23 +103,25 @@ class SBaseDir
         oc = s3_bucket.object_cache
         cpc = s3_bucket.common_prefix_cache
 
+        cpc.reject { |p| p == '/' }.each do |prefix|
+          d = SPrefixDir.new(self, prefix)
+          @data[d.name] = d
+        end
+
         oc.each do |s3_obj|
           # Technically we should use S3SYNC_DIR_LENGTH but aws-s3 decides it
           # needs to issue an HEAD request for every dir for that.
           if s3_obj.etag == S3SYNC_DIR_ETAG or s3_obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
-            @data << SFakeDir.new(self, s3_obj.key)
+            d = SFakeDir.new(self, s3_obj.key)
+            @data[d.name] = d
           elsif s3_obj.key.end_with? '/'
             # We passed 'prefix/', delimiter='/', if we get any keys that
             # end with /, it's just a marker object for our current directory
             # so ignore it.
           else
-            @data << SFile.new(self, s3_obj)
+            f = SFile.new(self, s3_obj)
+            @data[f.name] = f
           end
-        end
-
-        cpc.reject { |p| p == '/' }.each do |prefix|
-          hidden = SPrefixDir.new(self, prefix)
-          @data << hidden unless @data.find { |i| i.name == hidden.name }
         end
 
         break unless s3_bucket.truncated?
@@ -212,7 +216,8 @@ class SBucketsDir < SBaseDir
   end
   def create_dir child_key
     AWS::S3::Bucket.create(child_key)
-    get_contents << SBucketDir.new(self, child_key)
+    d = SBucketDir.new(self, child_key)
+    get_contents[d.name] = d
   end
   def delete
     raise 'cannot delete the buckets dir'
@@ -229,9 +234,10 @@ class SBucketsDir < SBaseDir
     def get_contents
       return @data if @data != nil
       puts "Loading buckets..."
-      @data = []
+      @data = {}
       AWS::S3::Bucket.list(true).each do |s3_bucket|
-        @data << SBucketDir.new(self, s3_bucket.name)
+        d = SBucketDir.new(self, s3_bucket.name)
+        @data[d.name] = d
       end
       puts "done"
       @data
