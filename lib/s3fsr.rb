@@ -9,13 +9,25 @@ S3SYNC_DIR_ETAG = 'd66759af42f282e1ba19144df2d405d0'
 S3SYNC_DIR_LENGTH = 38
 AWS::S3::Base.establish_connection!(:access_key_id => ENV['AWS_ACCESS_KEY_ID'], :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY'])
 
+# old key split name perf sucked, so optimize with a cached rindex/slice
+def last_part(key)
+  last_slash = key.rindex('/', -2)
+  drop = key.end_with?('/') ? 1 : 0
+  if last_slash then
+    key.slice(last_slash + 1, key.length - last_slash - 1 - drop)
+  else
+    key.slice(0, key.length - drop)
+  end
+end
+
 class SFile
   def initialize(parent, s3obj)
     @parent = parent
     @s3obj = s3obj
+    @name = last_part(@s3obj.key)
   end
   def name
-    @s3obj.key.split('/')[-1]
+    @name
   end
   def is_directory?
     false
@@ -126,9 +138,7 @@ class SPrefixDir < SBaseDir
     @parent = parent
     @key = key
     @data = nil
-    # old key split name perf sucked, so optimize with a cached rindex/slice
-    last_slash = @key.rindex('/', -2)
-    @name = last_slash ? @key.slice(last_slash + 1, @key.length - last_slash - 2) : @key.slice(0, @key.length - 1)
+    @name = last_part(@key)
   end
   def name
     @name
@@ -148,9 +158,10 @@ class SFakeDir < SBaseDir
     @parent = parent
     @key = key
     @data = nil
+    @name = strip_dir_suffix(last_part(@key))
   end
   def name
-    strip_dir_suffix @key.split('/')[-1]
+    @name
   end
   def bucket
     @parent.bucket
