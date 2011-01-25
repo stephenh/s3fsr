@@ -85,7 +85,11 @@ class SBaseDir
       marker = ''
       loop do
         s3_bucket = AWS::S3::Bucket.find(bucket, :prefix => prefix, :delimiter => '/', :marker => marker, :max_keys => 1000)
-        s3_bucket.object_cache.each do |s3_obj|
+
+        oc = s3_bucket.object_cache
+        cpc = s3_bucket.common_prefix_cache
+
+        oc.each do |s3_obj|
           # Technically we should use S3SYNC_DIR_LENGTH but aws-s3 decides it
           # needs to issue an HEAD request for every dir for that.
           if s3_obj.etag == S3SYNC_DIR_ETAG or s3_obj.key.end_with? S3ORGANIZER_DIR_SUFFIX
@@ -98,12 +102,18 @@ class SBaseDir
             @data << SFile.new(self, s3_obj)
           end
         end
-        s3_bucket.common_prefix_cache.reject { |p| p == '/' }.each do |prefix|
+
+        cpc.reject { |p| p == '/' }.each do |prefix|
           hidden = SPrefixDir.new(self, prefix)
           @data << hidden unless @data.find { |i| i.name == hidden.name }
         end
-        break unless s3_bucket.object_cache.length > 0 && s3_bucket.object_cache.length % 1000 == 0
-        marker = s3_bucket.object_cache.last.key
+
+        break unless s3_bucket.truncated?
+
+        # find which of the object/prefix keys is alphabetically last
+        last_object_key = oc.size == 0 ? '' : oc.last.key
+        last_prefix_key = cpc.size == 0 ? '' : cpc.last
+        marker = last_object_key < last_prefix_key ? last_prefix_key : last_object_key
       end
       puts "done"
       @data

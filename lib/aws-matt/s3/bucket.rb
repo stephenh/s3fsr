@@ -303,6 +303,10 @@ module AWS
         when :deleted then object_cache.delete(object)
         end
       end
+
+      def truncated?
+        attributes['is_truncated']
+      end
       
       private        
         def build_contents!

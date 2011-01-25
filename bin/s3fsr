@@ -16,7 +16,8 @@ if ENV['AWS_ACCESS_KEY_ID'] == nil or ENV['AWS_SECRET_ACCESS_KEY'] == nil
 end
 
 root = BUCKET != nil ? SBucketDir.new(nil, BUCKET) : SBucketsDir.new
-s3fsr = MethodLogger.new(S3fsr.new(root))
+s3fsr = S3fsr.new(root)
+# s3fsr = MethodLogger.new(s3fsr)
 FuseFS.set_root s3fsr
 FuseFS.mount_under MOUNT #, "allow_other"
 begin
