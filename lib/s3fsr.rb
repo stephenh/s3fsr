@@ -126,9 +126,12 @@ class SPrefixDir < SBaseDir
     @parent = parent
     @key = key
     @data = nil
+    # old key split name perf sucked, so optimize with a cached rindex/slice
+    last_slash = @key.rindex('/', -2)
+    @name = last_slash ? @key.slice(last_slash + 1, @key.length - last_slash - 2) : @key.slice(0, @key.length - 1)
   end
   def name
-    @key.split('/')[-1]
+    @name
   end
   def bucket
     @parent.bucket
