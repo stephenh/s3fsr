@@ -56,6 +56,15 @@ Tips
 * To avoid indexing daemons from scanning your S3 mount, you might try `chmod og-rx ~/s3`
   * I'm pretty sure this worked for me...feedback appreciated
 
+Disclaimer
+==========
+
+s3fsr is very handy, but it's target audience is a developer poking at S3 during their everyday development tasks. Before using it in production for any sort of automation processes, please consider that:
+
+* Ruby's FuseFS is inherently single-threaded (AFAICT), so if one process is saving/loading a file, any other process that accesses the s3fsr-mounted directory will block.
+* Ruby's FuseFS has no streaming support (again AFAICT), so all data is passed around in memory as Strings.
+* s3fsr itself uses a very naive way of accessing files (explicitly, saving `sub1/sub2/filea.txt` implicitly involves loading the files of `sub1` and files of `sub2`) that is not optimized for the case of only writing new files and not ever reading back the list of existing files.
+
 Caching
 =======
 
