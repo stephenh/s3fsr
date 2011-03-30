@@ -63,7 +63,7 @@ s3fsr is very handy, but it's target audience is a developer poking at S3 during
 
 * Ruby's FuseFS is inherently single-threaded (AFAICT), so if one process is saving/loading a file, any other process that accesses the s3fsr-mounted directory will block.
 * Ruby's FuseFS has no streaming support (again AFAICT), so all data is passed around in memory as Strings.
-* s3fsr itself uses a very naive way of accessing files (explicitly, saving `sub1/sub2/filea.txt` implicitly involves loading the files of `sub1` and files of `sub2`) that is not optimized for the case of only writing new files and not ever reading back the list of existing files.
+* s3fsr itself uses a very naive way of accessing files (explicitly, saving `sub1/sub2/filea.txt` implicitly involves fetching the names of the files in `sub1` and `sub2`) that is not optimized for the case of only writing new files and not ever reading back the list of existing files.
 
 Caching
 =======
