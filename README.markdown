@@ -87,6 +87,7 @@ Changelog
 * 1.7 - Fix deletion of AWS Console-style directory marker files, create new directories with AWS Console-style
 * 1.8 - Fix marker handling and horrible performance for large, prefix-based directories.
 * 1.9 - Fix file/directory names being numbers causing TypeErrors
+* 1.10 - Syntax fixes for Ruby 1.9
 
 Todo
 ====
