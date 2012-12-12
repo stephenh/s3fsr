@@ -49,7 +49,7 @@ class String
   end unless public_method_defined? :underscore
 
   def utf8?
-    scan(/[^\x00-\xa0]/u) { |s| s.unpack('U') }
+    scan(Regexp.new("[^\x00-\xa0]", 'u')) { |s| s.unpack('U') }
     true
   rescue ArgumentError
     false
@@ -75,11 +75,11 @@ class CoercibleString < String
   
   def coerce
     case self
-    when 'true':          true
-    when 'false':         false
+    when 'true' then           true
+    when 'false' then          false
     # Don't coerce numbers that start with zero
-    when  /^[1-9]+\d*$/:   Integer(self)
-    when datetime_format: Time.parse(self)
+    when  /^[1-9]+\d*$/ then   Integer(self)
+    when datetime_format then  Time.parse(self)
     else
       self
     end
