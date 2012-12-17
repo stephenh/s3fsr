@@ -88,6 +88,7 @@ Changelog
 * 1.8 - Fix marker handling and horrible performance for large, prefix-based directories.
 * 1.9 - Fix file/directory names being numbers causing TypeErrors
 * 1.10 - Syntax fixes for Ruby 1.9
+* 1.11 - Another fix for Ruby 1.9
 
 Todo
 ====
