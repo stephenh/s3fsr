@@ -27,7 +27,7 @@ end
 
 class String
   def previous!
-    self[-1] -= 1
+    self.setbyte(-1, self.getbyte(-1) - 1)
     self
   end
   
