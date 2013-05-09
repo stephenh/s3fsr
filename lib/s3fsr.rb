@@ -71,6 +71,10 @@ class SBaseDir
     get_contents[f.name] = f
   end
   def create_dir child_key
+    if child_key.end_with? "flush" then
+      @data = nil
+      return
+    end
     AWS::S3::S3Object.store(child_key + '/', '', bucket)
     d = SPrefixDir.new(self, child_key + '/')
     get_contents[d.name] = d
